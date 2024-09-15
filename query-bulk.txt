@@ -1,0 +1,76 @@
+ALTER VIEW [dbo].[ViewInstruksiBBRI] AS SELECT 
+	A.AutoNID,
+	A.EffectiveDate,
+	A.HeaderID,
+	A.BulkType,
+	A.TotalAmount,
+	A.TotalRecord - 1 AS TotalRecord ,
+	B.TotalSuccess,
+	B.TotalFailed
+
+FROM [WEBSERVICE_LG].[dbo].[BRI_BulkSend] AS A
+LEFT JOIN [WEBSERVICE_LG].[dbo].[BRI_BulkReply] AS B ON B.HeaderID = A.HeaderID
+
+
+CREATE VIEW [dbo].[ViewBBRIBulkSendDetail] AS SELECT 
+	A.AutoNID AS RowID,
+	A.TrxRefNo,
+	A.DebitedAcc,
+	A.Amount,
+	A.DebitedAccName,
+	A.Remark1
+FROM BRI_BulkSendDetail AS A 
+LEFT JOIN BRI_BulkSend AS B ON B.AutoNID = A.BulkNID
+
+ALTER VIEW [dbo].[ViewBBRIBulkReply] AS 
+SELECT * 
+FROM BRI_BulkReply 
+WHERE HeaderID = '00096354'
+
+CREATE VIEW [dbo].[ViewBBRIBulkReply] AS SELECT 
+	A.AutoNID AS RowID,
+	B.TrxRefNo,
+	CASE WHEN B.[Status] = '00' THEN 'SUCCESS' ELSE 'REJECTED' END AS [Status],
+	A.Reason
+
+FROM BRI_BulkReply AS A
+LEFT JOIN BRI_BulkReplyDetail AS B ON B.ReplyNID = A.AutoNID
+--WHERE HeaderID = '00096354'
+
+CREATE VIEW [dbo].[ViewInstruksiBBCA] AS SELECT          
+
+ A.AutoNID,
+
+ CASE WHEN A.HTTPCode = 'OK' THEN 'SUCCESS' ELSE 'REJECTED' END AS StatusCode,
+
+ A.TransactionDate,          
+
+ A.BankInstructionNID,          
+
+ A.BatchID,          
+
+ A.ClientID,          
+
+ A.Amount,          
+
+ A.SourceAccountNo,          
+
+ A.SourceAccountName,          
+
+ A.BeneficiaryAccountNo,          
+
+ A.BeneficiaryAccountName,       
+
+ A.[Type] AS TrxType,       
+
+ A.SendTime,          
+
+ A.ReceivedTime AS ReceiveTime,          
+
+ A.ServiceCode,                 
+
+ A.StatusMessage          
+
+          
+
+FROM BCA_OnlineTransfer AS A
